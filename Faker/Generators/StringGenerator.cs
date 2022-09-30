@@ -9,15 +9,15 @@ namespace Faker.Generators
         public object Generate(Type typeToGenerate, Context context)
         {
             var str = new StringBuilder();
-            var length = context.Random.Next(0, 255);
+            var length = context.Random.Next(0, 10);
             for (int i = 0; i < length; i++)
-                str.Append((char)new CharGenerator().Generate(typeToGenerate, context));
-            return str;
+                str.Append((char)context.Random.Next(0, 255));
+            return str.ToString();
         }
 
         public bool CanGenerate(Type type)
         {
-            throw new NotImplementedException();
+            return type == typeof(string);
         }
     }
 }
