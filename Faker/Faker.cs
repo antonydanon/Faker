@@ -34,7 +34,11 @@ namespace Faker
                 var paramValues = new object[constructorInfo.GetParameters().Length];
                 for (int i = 0; i < paramValues.Length; i++)
                 {
-                    paramValues[i] = _valueGenerator.Generate(constructorInfo.GetParameters()[i].ParameterType, _context);
+                    if(_valueGenerator.CanGenerate(constructorInfo.GetParameters()[i].ParameterType))
+                        paramValues[i] = _valueGenerator.Generate(constructorInfo.GetParameters()[i].ParameterType, _context);
+                    else
+                        paramValues[i] = Create(constructorInfo.GetParameters()[i].ParameterType);
+                    
                 }
                 obj = constructorInfo.Invoke(paramValues);
 
