@@ -7,7 +7,7 @@ namespace Faker.Checker
     public class DependenciesChecker
     {
         const int MAX_NESTING = 2;
-        private Dictionary<Type, int> _dependencyCounter = new(); 
+        public Dictionary<Type, int> _dependencyCounter = new(); 
     
         public void Add(Type type)
         {

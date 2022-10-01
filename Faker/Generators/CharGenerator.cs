@@ -7,7 +7,7 @@ namespace Faker.Generators
     {
         public object Generate(Type typeToGenerate, Context context)
         {
-            return context.Random.Next(0, 255);
+            return (char)context.Random.Next(0, 255);
         }
 
         public bool CanGenerate(Type type)
