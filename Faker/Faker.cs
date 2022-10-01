@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Faker.Checker;
 using Faker.Exception;
 using Faker.GeneratorContext;
 using Faker.Generators;
@@ -12,11 +13,13 @@ namespace Faker
 
         private Context _context;
         private ValueGenerator _valueGenerator;
+        private DependenciesChecker _dependenciesChecker;
         
         public Faker()
         {
             _context = new Context(new Random(), this);
             _valueGenerator = new ValueGenerator();
+            _dependenciesChecker = new DependenciesChecker();
         }
         public T Create<T>()
         {
@@ -26,17 +29,26 @@ namespace Faker
         private object Create(Type type)
         {
             object obj;
-            if (_valueGenerator.CanGenerate(type))
+            _dependenciesChecker.Add(type);
+            if (!_dependenciesChecker.IsMaxDepth())
             {
-                obj = _valueGenerator.Generate(type, _context);
+                if (_valueGenerator.CanGenerate(type))
+                {
+                    obj = _valueGenerator.Generate(type, _context);
+                }
+                else
+                {
+                    var setParams = new HashSet<string>();
+                    obj = CreatWithConstructor(type, ref setParams);
+                    SetFields(ref obj, type, setParams);
+                    SetProperties(ref obj, type, setParams);
+                }    
             }
             else
             {
-                var setParams = new HashSet<string>();
-                obj = CreatWithConstructor(type, ref setParams);
-                SetFields(ref obj, type, setParams);
-                SetProperties(ref obj, type, setParams);
+                obj = null;
             }
+            _dependenciesChecker.Delete(type);
 
             return obj;
         }
