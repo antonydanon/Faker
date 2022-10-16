@@ -1,7 +1,8 @@
 ﻿using System;
 using Faker.GeneratorContext;
+using Faker.Generators;
 
-namespace Faker.Generators
+namespace BoolGenerator
 {
     public class BoolGenerator : IValueGenerator
     {

@@ -7,7 +7,7 @@ namespace FakerTests.Generators
 {
     public class ByteGeneratorTest
     {
-        private ByteGenerator _byteGenerator = new ByteGenerator();
+        private ByteGenerator.ByteGenerator _byteGenerator = new ByteGenerator.ByteGenerator();
         private Type _type = typeof(byte);
         private Context _context = new Context(new Random(), new global::Faker.Faker());
 

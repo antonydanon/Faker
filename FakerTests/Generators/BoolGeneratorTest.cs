@@ -7,7 +7,7 @@ namespace FakerTests.Generators
 {
     public class BoolGeneratorTest
     {
-        private BoolGenerator _boolGenerator = new BoolGenerator();
+        private BoolGenerator.BoolGenerator _boolGenerator = new BoolGenerator.BoolGenerator();
         private Type _type = typeof(bool);
         private Context _context = new Context(new Random(), new global::Faker.Faker());
 
