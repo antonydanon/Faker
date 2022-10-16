@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Faker.Checker;
 using Faker.Exception;
@@ -26,7 +26,7 @@ namespace Faker
             return (T)Create(typeof(T));
         }
         
-        private object Create(Type type)
+        public object Create(Type type)
         {
             object obj;
             _dependenciesChecker.Add(type);
@@ -38,10 +38,9 @@ namespace Faker
                 }
                 else
                 {
-                    var setParams = new HashSet<string>();
-                    obj = CreatWithConstructor(type, ref setParams);
-                    SetFields(ref obj, type, setParams);
-                    SetProperties(ref obj, type, setParams);
+                    obj = CreatWithConstructor(type);
+                    SetFields(ref obj, type);
+                    SetProperties(ref obj, type);
                 }    
             }
             else
@@ -53,69 +52,75 @@ namespace Faker
             return obj;
         }
 
-        private object CreatWithConstructor(Type type, ref HashSet<string> setParams)
+        private IOrderedEnumerable<ConstructorInfo> GetConstructors(Type type)
         {
-            ConstructorInfo constructorInfo = getConstructorWithMaxCountOfParams(type);
-            var paramValues = new object[constructorInfo.GetParameters().Length];
-            for (int i = 0; i < paramValues.Length; i++)
-            {
-                if(_valueGenerator.CanGenerate(constructorInfo.GetParameters()[i].ParameterType))
-                    paramValues[i] = _valueGenerator.Generate(constructorInfo.GetParameters()[i].ParameterType, _context);
-                else
-                    paramValues[i] = Create(constructorInfo.GetParameters()[i].ParameterType);
-
-                setParams.Add(constructorInfo.GetParameters()[i].Name);
-            }
-            return constructorInfo.Invoke(paramValues);    
+            return type.GetConstructors().OrderByDescending(i => i.GetParameters().Length);
         }
-        
-        private ConstructorInfo getConstructorWithMaxCountOfParams(Type type)
+
+        private object CreatWithConstructor(Type type)
         {
-            ConstructorInfo[] constructors = type.GetConstructors();
-
-            if (constructors.Length == 1)
-                return constructors[0];
-
-            int indexOfConstructorWithMaxCountOfparams = 0;
-
-            for (int i = 1; i < constructors.Length; i++)
+            IOrderedEnumerable<ConstructorInfo> constructorInfos = GetConstructors(type);
+            foreach (var constructorInfo in constructorInfos)
             {
-                if (constructors[i - 1].GetParameters().Length < constructors[i].GetParameters().Length)
-                    indexOfConstructorWithMaxCountOfparams = i;
+                try
+                {
+                    var paramValues = new object[constructorInfo.GetParameters().Length];
+                    for (int i = 0; i < paramValues.Length; i++)
+                    {
+                        if (_valueGenerator.CanGenerate(constructorInfo.GetParameters()[i].ParameterType))
+                            paramValues[i] = _valueGenerator.Generate(constructorInfo.GetParameters()[i].ParameterType,
+                                _context);
+                        else
+                            paramValues[i] = Create(constructorInfo.GetParameters()[i].ParameterType);
+                    }
+
+                    return constructorInfo.Invoke(paramValues);
+                }
+                catch (System.Exception e)
+                {
+                }
             }
 
-            return constructors[indexOfConstructorWithMaxCountOfparams];
+            try
+            {
+                return Activator.CreateInstance(type)!;
+            }
+            catch (System.Exception e)
+            {
+            }
+
+            throw new CanNotCreateTheObject();
         }
-        
-        private void SetFields(ref object obj, Type t, HashSet<string> setParams)
+
+        private void SetFields(ref object obj, Type t)
         {
             var fields = t.GetFields();
             foreach (var field in fields)
             {
-                if (!setParams.Contains(field.Name))
-                {
-                    field.SetValue(obj, _valueGenerator.CanGenerate(field.FieldType)
+                if (field.GetValue(obj) != null && field.GetValue(obj).Equals(GetDefaultObjectValueType(t))) continue;
+                field.SetValue(obj, _valueGenerator.CanGenerate(field.FieldType)
                             ? _valueGenerator.Generate(field.FieldType, _context)
                             : Create(field.FieldType));
-                }
+                
             }
         }
 
-        private void SetProperties(ref object obj, Type t, HashSet<string> setParams)
+        private void SetProperties(ref object obj, Type t)
         {
             var properties = t.GetProperties();
             foreach (var property in properties)
             {
-                if (!setParams.Contains(property.Name))
-                {
-                    if (property.CanWrite)
-                    {
-                        property.SetValue(obj, _valueGenerator.CanGenerate(property.PropertyType)
-                                ? _valueGenerator.Generate(property.PropertyType, _context)
-                                : Create(property.PropertyType));
-                    }
-                }
+                if (property.GetValue(obj) != null && property.GetValue(obj).Equals(GetDefaultObjectValueType(t))) continue;
+                if (!property.CanWrite) continue;
+                    property.SetValue(obj, _valueGenerator.CanGenerate(property.PropertyType)
+                        ? _valueGenerator.Generate(property.PropertyType, _context)
+                        : Create(property.PropertyType));
             }
+        }
+
+        private object GetDefaultObjectValueType(Type type)
+        {
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
         }
     }
 }

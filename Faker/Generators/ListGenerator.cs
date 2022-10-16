@@ -7,25 +7,23 @@ namespace Faker.Generators
 {
     public class ListGenerator : IValueGenerator
     {
-        public object Generate(Type type, Context context)
+        public object Generate(Type typeToGenerate, Context context)
         {
-            var genericTypeArgument = type.GenericTypeArguments[0];
-            var listObject = Activator.CreateInstance(type);
+            var genericTypeArgument = typeToGenerate.GenericTypeArguments[0];
+            var listObject = (IList)Activator.CreateInstance(typeToGenerate);
 
             var length = context.Random.Next(10);
             
-            var executeMethod = context.Faker
+            /*var executeMethod = context.Faker
                 .GetType()
                 .GetMethod("Create")?
-                .MakeGenericMethod(genericTypeArgument);
+                .MakeGenericMethod(genericTypeArgument);*/
+            
 
             for (int i = 0; i < length; i++)
             {
-                var obj = new []{
-                    executeMethod?.Invoke(context.Faker, new object[]{})
-                };
-                
-                type.GetMethod("Add")?.Invoke(listObject, obj);
+                //typeToGenerate.GetMethod("Add")?.Invoke(listObject, obj);
+                listObject.Add(context.Faker.Create(genericTypeArgument));
             }
 
             return listObject;

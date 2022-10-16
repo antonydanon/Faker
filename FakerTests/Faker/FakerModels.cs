@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Faker.Exception;
 using Faker.GeneratorContext;
 using Faker.Generators;
 
@@ -8,141 +9,114 @@ namespace FakerTests.Faker
     public class FakerModels
     {
         public class EmptyClass
-    {
+        {
         
-    }
-
-    public class SimpleFieldsClass
-    {
-        public int? X;
-        public bool? Y;
-        public double? Z;
-
-        public SimpleFieldsClass(int x, bool y, double z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-        }
-    }
-
-    public class TwoConstructorsClass
-    {
-        public int? X;
-        public bool? Y;
-        public double? Z;
-
-        public TwoConstructorsClass(int x, bool y, double z)
-        {
-            X = x;
-            Y = y;
-            Z = z;
         }
 
-        public TwoConstructorsClass(int x, bool y)
+        public class SimpleFieldsClass
         {
-            X = x;
-            Y = y;
+            public int X;
+            public bool Y;
+            public double Z;
+
+            public SimpleFieldsClass(int x, bool y, double z)
+            {
+                X = x;
+                Y = y;
+                Z = z;
+            }
         }
-    }
 
-    public class PrivateConstructorClass
-    {
-        public int? X;
-
-        private PrivateConstructorClass(int x)
+        public class TwoConstructorsClass
         {
-            X = x;
-        }
-    }
+            public int X;
+            public bool Y;
+            public double Z;
 
-    public class WithoutConstructorClass
-    {
-        public int? X;
-        public bool? Y;
-        public double? Z;
-    }
+            public TwoConstructorsClass(int x, bool y, double z)
+            {
+                X = x;
+                Y = y;
+                Z = z;
+            }
+
+            public TwoConstructorsClass(int x, bool y)
+            {
+                X = x;
+                Y = y;
+            }
+        }
+
+        public class PrivateConstructorClass
+        {
+            public int X;
+
+            private PrivateConstructorClass(int x)
+            {
+                X = x;
+            }
+        }
+
+        public class WithoutConstructorClass
+        {
+            public int X;
+            public bool Y;
+            public double Z;
+        }
     
-    public class PropertiesClass
-    {
-        public int? X { get; set; }
-        public bool? Y { get; set; }
-        public double? Z { get; }
-    }
-
-    public class ClassWithInnerClass
-    {
-        public int? X;
-        public bool? Y;
-        public SimpleFieldsClass Z;
-
-        public ClassWithInnerClass(int x, bool y, SimpleFieldsClass z)
+        public class PropertiesClass
         {
-            X = x;
-            Y = y;
-            Z = z;
+            public int X { get; set; }
+            public bool Y { get; set; }
+            public double Z { get; }
         }
-    }
-
-    public class RecursiveFieldClass
-    {
-        public RecursiveFieldClass field;
-    }
-
-    public class ListClass
-    {
-        public List<RecursiveFieldClass> List;
-    }
-
-    public class DedicatedGeneratorsClass
-    {
-        public long? X;
-        public float? Y;
-    }
-
-    public class DateTimeClass
-    {
-        public DateTime? Time;
-    }
-
-    public class CustomIntGenerator : IValueGenerator
-    {
-        public object Generate(Type typeToGenerate, Context generatorContext)
+        
+        public class ClassWithInnerClass
         {
-            return 1;
+            public int X;
+            public bool Y;
+            public SimpleFieldsClass Z;
+
+            public ClassWithInnerClass(int x, bool y, SimpleFieldsClass z)
+            {
+                X = x;
+                Y = y;
+                Z = z;
+            }
         }
 
-        public bool CanGenerate(Type type)
+        public class RecursiveFieldClass
         {
-            return true;
+            public RecursiveFieldClass field;
         }
-    }
-    
-    public class CustomConfigureFieldClass
-    {
-        public int? testField;
-    }
 
-    public class CustomConfigurePropertyClass
-    {
-        public int? TestField { get; }
-
-        public CustomConfigurePropertyClass(int testField)
+        public class ListClass
         {
-            TestField = testField;
+            public List<RecursiveFieldClass> List;
         }
-    }
 
-    public struct SimpleFieldsStruct
-    {
-        public int? X;
-        public bool? Y;
-
-        public SimpleFieldsStruct(int? x, bool? y)
+        public class DateTimeClass
         {
-            X = x;
-            Y = y;
+            public DateTime Time;
         }
-    }
+        
+
+        public struct SimpleFieldsStruct
+        {
+            public int X;
+            public bool Y;
+
+            public SimpleFieldsStruct(int x, bool y)
+            {
+                X = x;
+                Y = y;
+            }
+        }
+        
+        public struct StructWithoutConstructor
+        {
+            public int X;
+            public bool Y;
+        }
     }
 }

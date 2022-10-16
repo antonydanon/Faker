@@ -51,7 +51,7 @@ namespace Faker.Generators
                 }
             }
 
-            throw new PrimitiveGenerationException("No one generator matches!");
+            throw new PrimitiveGenerationException();
         }
 
         public bool CanGenerate(Type type)
